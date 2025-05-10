@@ -7,8 +7,9 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
+
+import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,6 +48,7 @@ public class BaseWiFiManager {
             // 生成配置
             WifiConfiguration wifiConfig = new WifiConfiguration();
             wifiConfig.SSID = addDoubleQuotation(ssid);
+//            wifiConfig.hiddenSSID = true;// 设置wifi是否被隐藏
             wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
             wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
             wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
@@ -291,9 +293,8 @@ public class BaseWiFiManager {
         if (null != mWifiManager) {
             boolean isDisconnect = disconnectCurrentWifi();
             boolean isEnableNetwork = mWifiManager.enableNetwork(networkId, true);
-            boolean isSave = mWifiManager.saveConfiguration();
             boolean isReconnect = mWifiManager.reconnect();
-            return isDisconnect && isEnableNetwork && isSave && isReconnect;
+            return isDisconnect && isEnableNetwork && isReconnect;
         }
         return false;
     }
@@ -307,12 +308,12 @@ public class BaseWiFiManager {
     private int addNetwork(WifiConfiguration wifiConfig) {
         if (null != mWifiManager) {
             int networkId = mWifiManager.addNetwork(wifiConfig);
+//            mWifiManager.saveConfiguration()
+//            Log.e("Wifi 设置网络", String.valueOf(networkId));
             if (-1 != networkId) {
-                boolean isSave = mWifiManager.saveConfiguration();
-                if (isSave) {
-                    return networkId;
-                }
+                return networkId;
             }
+            return networkId;
         }
         return -1;
     }
@@ -326,12 +327,11 @@ public class BaseWiFiManager {
     private int updateNetwork(WifiConfiguration wifiConfig) {
         if (null != mWifiManager) {
             int networkId = mWifiManager.updateNetwork(wifiConfig);
+//            Log.e("Wifi 设置网络", String.valueOf(networkId));
             if (-1 != networkId) {
-                boolean isSave = mWifiManager.saveConfiguration();
-                if (isSave) {
-                    return networkId;
-                }
+                return networkId;
             }
+            return networkId;
         }
         return -1;
     }
@@ -377,8 +377,7 @@ public class BaseWiFiManager {
         if (null != mWifiManager) {
             boolean isDisable = mWifiManager.disableNetwork(netId);
             boolean isRemove = mWifiManager.removeNetwork(netId);
-            boolean isSave = mWifiManager.saveConfiguration();
-            return isDisable && isRemove && isSave;
+            return isDisable && isRemove;
         }
         return false;
     }

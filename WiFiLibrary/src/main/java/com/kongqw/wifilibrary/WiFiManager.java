@@ -9,8 +9,9 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.NonNull;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import com.kongqw.wifilibrary.listener.OnWifiConnectListener;
 import com.kongqw.wifilibrary.listener.OnWifiEnabledListener;
@@ -82,12 +83,12 @@ public class WiFiManager extends BaseWiFiManager {
         // 获取networkId
         int networkId = setOpenNetwork(ssid);
         if (-1 != networkId) {
-            // 保存配置
-            boolean isSave = saveConfiguration();
+//            // 保存配置
+//            boolean isSave = saveConfiguration();
             // 连接网络
             boolean isEnable = enableNetwork(networkId);
 
-            return isSave && isEnable;
+            return isEnable;
         }
         return false;
     }
@@ -103,12 +104,12 @@ public class WiFiManager extends BaseWiFiManager {
         // 获取networkId
         int networkId = setWEPNetwork(ssid, password);
         if (-1 != networkId) {
-            // 保存配置
-            boolean isSave = saveConfiguration();
+//            // 保存配置
+//            boolean isSave = saveConfiguration();
             // 连接网络
             boolean isEnable = enableNetwork(networkId);
 
-            return isSave && isEnable;
+            return isEnable;
         }
         return false;
     }
@@ -124,13 +125,32 @@ public class WiFiManager extends BaseWiFiManager {
         // 获取networkId
         int networkId = setWPA2Network(ssid, password);
         if (-1 != networkId) {
-            // 保存配置
-            boolean isSave = saveConfiguration();
             // 连接网络
             boolean isEnable = enableNetwork(networkId);
 
-            return isSave && isEnable;
+//            Log.e("Wifi 设置网络:", String.valueOf(isSave) + "----" + String.valueOf(isEnable));
+            return isEnable;
         }
+        Log.e("Wifi 设置网络失败，获取id异常:", String.valueOf(networkId));
+        return false;
+    }
+
+    /**
+     * 连接到历史网络
+     *
+     * @param networkId 历史wifi的id
+     * @return 配置是否成功
+     */
+    public boolean connectHistoryNetwork(@NonNull int networkId) {
+        // 获取networkId
+        if (-1 != networkId) {
+            // 连接网络
+            boolean isEnable = enableNetwork(networkId);
+
+            Log.e("Wifi 设置网络:", "----" + String.valueOf(isEnable));
+            return isEnable;
+        }
+        Log.e("Wifi 设置网络失败，获取id异常:", String.valueOf(networkId));
         return false;
     }
 
@@ -143,7 +163,6 @@ public class WiFiManager extends BaseWiFiManager {
     public static class NetworkBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-
             WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
             switch (intent.getAction()) {
@@ -172,9 +191,9 @@ public class WiFiManager extends BaseWiFiManager {
                 case WifiManager.SCAN_RESULTS_AVAILABLE_ACTION: // WIFI扫描完成
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                         boolean isUpdated = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false);
-                        Log.i(TAG, "onReceive: WIFI扫描  " + (isUpdated ? "完成" : "未完成"));
-                    } else {
-                        Log.i(TAG, "onReceive: WIFI扫描完成");
+//                        Log.i(TAG, "onReceive: WIFI扫描  " + (isUpdated ? "完成" : "未完成"));
+//                    } else {
+//                        Log.i(TAG, "onReceive: WIFI扫描完成");
                     }
 
                     Message scanResultsMessage = Message.obtain();
@@ -183,7 +202,7 @@ public class WiFiManager extends BaseWiFiManager {
                     mCallBackHandler.sendMessage(scanResultsMessage);
                     break;
                 case WifiManager.NETWORK_STATE_CHANGED_ACTION: // WIFI连接状态发生改变
-//                    Log.i(TAG, "onReceive: WIFI连接状态发生改变");
+                    Log.i(TAG, "onReceive: WIFI连接状态发生改变");
 //                    NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
 //                    if (null != networkInfo && ConnectivityManager.TYPE_WIFI == networkInfo.getType()) {
 //                    }
@@ -191,11 +210,17 @@ public class WiFiManager extends BaseWiFiManager {
                     if (null != wifiInfo && wifiInfo.getSupplicantState() == SupplicantState.COMPLETED) {
                         String ssid = wifiInfo.getSSID();
                         Log.i(TAG, "onReceive: 网络连接成功 ssid = " + ssid);
+
+
+                        Message wifiConnectSuccessMessage = Message.obtain();
+                        wifiConnectSuccessMessage.what = WIFI_CONNECT_SUCCESS;
+                        wifiConnectSuccessMessage.obj = wifiInfo.getSSID();
+                        mCallBackHandler.sendMessage(wifiConnectSuccessMessage);
                     }
                     break;
                 case WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION:
                     boolean isConnected = intent.getBooleanExtra(WifiManager.EXTRA_SUPPLICANT_CONNECTED, false);
-                    Log.i(TAG, "onReceive: SUPPLICANT_CONNECTION_CHANGE_ACTION  isConnected = " + isConnected);
+//                    Log.i(TAG, "onReceive: SUPPLICANT_CONNECTION_CHANGE_ACTION  isConnected = " + isConnected);
                     break;
                 case WifiManager.SUPPLICANT_STATE_CHANGED_ACTION: // WIFI连接请求状态发生改变
                     // 获取连接状态
@@ -204,19 +229,16 @@ public class WiFiManager extends BaseWiFiManager {
                     Message logMessage = Message.obtain();
                     logMessage.what = WIFI_CONNECT_LOG;
                     logMessage.obj = supplicantState.toString();
-                    logMessage.obj = supplicantState.toString();
                     mCallBackHandler.sendMessage(logMessage);
 
                     switch (supplicantState) {
                         case INTERFACE_DISABLED: // 接口禁用
-                            Log.i(TAG, "onReceive: INTERFACE_DISABLED 接口禁用");
+//                            Log.i(TAG, "onReceive: INTERFACE_DISABLED 接口禁用");
                             break;
                         case DISCONNECTED:// 断开连接
 //                            Log.i(TAG, "onReceive: DISCONNECTED:// 断开连接");
-//                            break;
-                        case INACTIVE: // 不活跃的
                             WifiInfo connectFailureInfo = wifiManager.getConnectionInfo();
-                            Log.i(TAG, "onReceive: INACTIVE 不活跃的  connectFailureInfo = " + connectFailureInfo);
+//                            Log.i(TAG, "onReceive: INACTIVE 不活跃的  connectFailureInfo = " + connectFailureInfo);
                             if (null != connectFailureInfo) {
                                 Message wifiConnectFailureMessage = Message.obtain();
                                 wifiConnectFailureMessage.what = WIFI_CONNECT_FAILURE;
@@ -228,6 +250,8 @@ public class WiFiManager extends BaseWiFiManager {
                                 boolean isDisconnect = wifiManager.disconnect();
                                 Log.i(TAG, "onReceive: 断开连接  =  " + (isDisable && isDisconnect));
                             }
+                            break;
+                        case INACTIVE: // 不活跃的
                             break;
                         case SCANNING: // 正在扫描
                             Log.i(TAG, "onReceive: SCANNING 正在扫描");
@@ -267,10 +291,12 @@ public class WiFiManager extends BaseWiFiManager {
                             Log.i(TAG, "onReceive: INVALID: // 无效的");
                             break;
                         default:
+                            Log.i(TAG, "onReceive: default: // default");
                             break;
                     }
                     break;
                 default:
+                    Log.i(TAG, "onReceive: default: // default default");
                     break;
             }
         }
@@ -300,7 +326,7 @@ public class WiFiManager extends BaseWiFiManager {
                         mOnWifiScanResultsListener.onScanResults(scanResults);
                     }
                     break;
-                case WIFI_CONNECT_LOG: // WIFI连接完成
+                case WIFI_CONNECT_LOG: // WIFI连接
                     if (null != mOnWifiConnectListener) {
                         String log = (String) msg.obj;
                         mOnWifiConnectListener.onWiFiConnectLog(log);
@@ -312,7 +338,7 @@ public class WiFiManager extends BaseWiFiManager {
                         mOnWifiConnectListener.onWiFiConnectSuccess(ssid);
                     }
                     break;
-                case WIFI_CONNECT_FAILURE: // WIFI连接完成
+                case WIFI_CONNECT_FAILURE: // WIFI连接失败
                     if (null != mOnWifiConnectListener) {
                         String ssid = (String) msg.obj;
                         mOnWifiConnectListener.onWiFiConnectFailure(ssid);
