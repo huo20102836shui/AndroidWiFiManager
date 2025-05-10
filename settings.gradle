@@ -1,1 +1,41 @@
+pluginManagement {
+    repositories {
+        mavenCentral()
+
+        maven { url "https://mirrors.163.com/maven/repository/maven-public/" }
+        maven { url "https://repo.huaweicloud.com/repository/maven/" }
+//        maven { url "https://mirrors.cloud.tencent.com/nexus/repository/maven-public/" }
+        maven { url "https://maven.aliyun.com/repository/public" }
+        maven { url "https://maven.aliyun.com/nexus/content/repositories/releases" }
+        maven { url 'https://maven.aliyun.com/nexus/content/groups/public/' }
+        maven { url 'https://maven.aliyun.com/nexus/content/repositories/jcenter' }
+        maven { url 'https://maven.aliyun.com/nexus/content/repositories/google' }
+        maven { url 'https://maven.aliyun.com/nexus/content/repositories/gradle-plugin' }
+
+        gradlePluginPortal()
+        google()
+        maven { url 'https://jitpack.io' }
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+
+        maven { url "https://mirrors.163.com/maven/repository/maven-public/" }
+        maven { url "https://repo.huaweicloud.com/repository/maven/" }
+//        maven { url "https://mirrors.cloud.tencent.com/nexus/repository/maven-public/" }
+        maven { url "https://maven.aliyun.com/repository/public" }
+        maven { url "https://maven.aliyun.com/nexus/content/repositories/releases" }
+        maven { url 'https://maven.aliyun.com/nexus/content/groups/public/' }
+        maven { url 'https://maven.aliyun.com/nexus/content/repositories/jcenter' }
+        maven { url 'https://maven.aliyun.com/nexus/content/repositories/google' }
+        maven { url 'https://maven.aliyun.com/nexus/content/repositories/gradle-plugin' }
+
+        gradlePluginPortal()
+        google()
+        maven { url 'https://jitpack.io' }
+    }
+}
+
 include ':app', ':WiFiLibrary'
