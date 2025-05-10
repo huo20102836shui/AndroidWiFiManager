@@ -172,7 +172,7 @@ public class BaseWiFiManager {
      *
      * @return 是否连接
      */
-    boolean isWifiConnected() {
+    public boolean isWifiConnected() {
         if (null != mConnectivityManager) {
             NetworkInfo networkInfo = mConnectivityManager.getActiveNetworkInfo();
             return null != networkInfo && networkInfo.isConnected() && networkInfo.getType() == ConnectivityManager.TYPE_WIFI;
